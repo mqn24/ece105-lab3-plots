@@ -184,3 +184,38 @@ def plot_boxplot(sensor_a, sensor_b, timestamps, ax, *, seed=None):
         ax.set_title('Side-by-side Box Plot of Sensor Readings')
     ax.legend()
     ax.grid(axis='y', linestyle='--', alpha=0.5)
+def main(seed=1847, out_path='sensor_analysis.png'):
+    """Generate data, create plots, and save a 1x3 figure.
+
+    Parameters
+    ----------
+    seed : int, optional
+        RNG seed to pass to ``generate_data``. Default is 1847.
+    out_path : str, optional
+        File path to save the combined figure. Default is ``'sensor_analysis.png'``.
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    Creates a 1x3 subplot figure (scatter, histogram, boxplot), calls the
+    corresponding plotting functions to draw on each Axes, tightens layout,
+    and saves the figure at 150 DPI with a tight bounding box.
+    """
+    sensor_a, sensor_b, timestamps = generate_data(seed)
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+    # Left: scatter (plot_scatter expects ax first)
+    plot_scatter(axes[0], timestamps, sensor_a, sensor_b, seed=seed)
+    # Middle: histogram
+    plot_histogram(sensor_a, sensor_b, timestamps, axes[1], bins=30, seed=seed)
+    # Right: boxplot
+    plot_boxplot(sensor_a, sensor_b, timestamps, axes[2], seed=seed)
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+
+
+if __name__ == '__main__':
+    main()
