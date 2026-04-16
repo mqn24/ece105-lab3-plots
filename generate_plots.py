@@ -185,7 +185,7 @@ def plot_boxplot(sensor_a, sensor_b, timestamps, ax, *, seed=None):
     ax.legend()
     ax.grid(axis='y', linestyle='--', alpha=0.5)
 def main(seed=1847, out_path='sensor_analysis.png'):
-    """Generate data, create plots, and save a 1x3 figure.
+    """Generate data, create plots, and save a 2x2 figure.
 
     Parameters
     ----------
@@ -200,18 +200,34 @@ def main(seed=1847, out_path='sensor_analysis.png'):
 
     Notes
     -----
-    Creates a 1x3 subplot figure (scatter, histogram, boxplot), calls the
+    Creates a 2x2 subplot grid (scatter, histogram, boxplot, summary), calls the
     corresponding plotting functions to draw on each Axes, tightens layout,
-    and saves the figure at 150 DPI with a tight bounding box.
+    and saves the figure at 150 DPI with a tight bounding box. The fourth panel
+    displays summary statistics for quick inspection.
     """
     sensor_a, sensor_b, timestamps = generate_data(seed)
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
-    # Left: scatter (plot_scatter expects ax first)
-    plot_scatter(axes[0], timestamps, sensor_a, sensor_b, seed=seed)
-    # Middle: histogram
-    plot_histogram(sensor_a, sensor_b, timestamps, axes[1], bins=30, seed=seed)
-    # Right: boxplot
-    plot_boxplot(sensor_a, sensor_b, timestamps, axes[2], seed=seed)
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+    # Top-left: scatter
+    plot_scatter(axes[0, 0], timestamps, sensor_a, sensor_b, seed=seed)
+    # Top-right: histogram
+    plot_histogram(sensor_a, sensor_b, timestamps, axes[0, 1], bins=30, seed=seed)
+    # Bottom-left: boxplot
+    plot_boxplot(sensor_a, sensor_b, timestamps, axes[1, 0], seed=seed)
+    # Bottom-right: summary statistics
+    ax_summary = axes[1, 1]
+    ax_summary.axis('off')
+    mean_a = np.mean(sensor_a)
+    std_a = np.std(sensor_a, ddof=0)
+    mean_b = np.mean(sensor_b)
+    std_b = np.std(sensor_b, ddof=0)
+    overall_mean = np.mean(np.concatenate([sensor_a, sensor_b]))
+    summary = (
+        f"Summary statistics\n\n"
+        f"Sensor A: mean = {mean_a:.2f} °C, std = {std_a:.2f} °C\n"
+        f"Sensor B: mean = {mean_b:.2f} °C, std = {std_b:.2f} °C\n\n"
+        f"Overall mean = {overall_mean:.2f} °C\n"
+    )
+    ax_summary.text(0.01, 0.99, summary, va='top', ha='left', fontsize=10, family='monospace')
     plt.tight_layout()
     fig.savefig(out_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
