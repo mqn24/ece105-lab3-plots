@@ -9,6 +9,7 @@ Usage
     python generate_plots.py
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def generate_data(seed):
@@ -45,3 +46,49 @@ def generate_data(seed):
     sensor_a = sensor_a[order]
     sensor_b = sensor_b[order]
     return sensor_a, sensor_b, timestamps
+# Create plot_scatter(sensor_a, sensor_b, timestamps, ax) that draws
+# the scatter plot from the notebook onto the given Axes object.
+# NumPy-style docstring. Modifies ax in place, returns None.
+def plot_scatter(ax, timestamps, sensor_a, sensor_b, *, seed=None):
+    """Draw scatter plot of two sensors vs time onto an Axes.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes object to draw the plot on. The function modifies this Axes in place.
+    timestamps : array_like, shape (200,)
+        Time values in seconds (assumed sorted) for the x-axis.
+    sensor_a : array_like, shape (200,)
+        Temperature readings from Sensor A in degrees Celsius.
+    sensor_b : array_like, shape (200,)
+        Temperature readings from Sensor B in degrees Celsius.
+    seed : int, optional
+        Optional seed used in the data generation; if provided it will be shown
+        in the plot title for reproducibility/context. Default is None.
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    The visual style matches the notebook: colored markers for each sensor with
+    faint connecting lines, axis labels with units, a legend, a grid, and a
+    compact layout handled by the caller if desired.
+    """
+    # plot markers
+    ax.scatter(timestamps, sensor_a, color='blue', s=30, alpha=0.8,
+               label='Sensor A', edgecolors='none')
+    ax.scatter(timestamps, sensor_b, color='orange', s=30, alpha=0.8,
+               marker='s', label='Sensor B', edgecolors='none')
+    # connecting lines for temporal evolution
+    ax.plot(timestamps, sensor_a, color='blue', linewidth=0.8, alpha=0.6)
+    ax.plot(timestamps, sensor_b, color='orange', linewidth=0.8, alpha=0.6)
+    ax.set_xlabel('Time (s)')
+    ax.set_ylabel('Temperature (°C)')
+    if seed is not None:
+        ax.set_title(f'Sensor Readings vs Time (seed={seed})')
+    else:
+        ax.set_title('Sensor Readings vs Time')
+    ax.legend()
+    ax.grid(True)
